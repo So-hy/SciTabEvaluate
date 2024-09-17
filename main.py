@@ -1,21 +1,57 @@
 # main.py
 
 import torch
-from data_utils import load_data, split_data, linearize_table
+from data_utils import load_data, split_data, filter_data_by_labels, linearize_table
 from model_utils import load_model, generate_prediction
 from evaluation import calculate_metrics
 
-def map_prediction_to_label(prediction):
+def map_prediction_to_label(prediction, labels_to_include):
     """모델의 출력 문자열을 레이블로 매핑합니다."""
-    prediction = prediction.lower()
-    if 'true' in prediction or 'a' in prediction:
-        return 'supports'
-    elif 'false' in prediction or 'b' in prediction:
-        return 'refutes'
-    elif 'unknown' in prediction or 'c' in prediction:
-        return 'not enough information'
+    if 'True' in prediction or 'A' in prediction:
+        label = 'supports'
+    elif 'False' in prediction or 'B' in prediction:
+        label = 'refutes'
+    elif 'Unknown' in prediction or 'C' in prediction:
+        label = 'not enough information'
     else:
-        return 'unknown'
+        label = 'unknown'
+
+    # 사용하지 않는 레이블은 'unknown'으로 처리
+    if label not in labels_to_include:
+        label = 'unknown'
+    return label
+
+def zero_shot_evaluate(model, tokenizer, test_data, labels_to_include, device):
+    """Zero-shot 평가를 수행합니다."""
+    true_labels = []
+    pred_labels = []
+    for sample in test_data:
+        input_text = linearize_table(sample)
+        prediction = generate_prediction(model, tokenizer, input_text, device)
+        predicted_label = map_prediction_to_label(prediction, labels_to_include)
+        true_labels.append(sample['label'])
+        pred_labels.append(predicted_label)
+    return true_labels, pred_labels
+
+def in_context_evaluate(model, tokenizer, test_data, example_data, label_mapping, labels_to_include, device):
+    """In-Context Learning 평가를 수행합니다."""
+    # 예시 입력 구성 (3개 예시 사용)
+    example_text = ''
+    for sample in example_data[:3]:
+        input_text = linearize_table(sample)
+        answer = label_mapping.get(sample['label'], 'Unknown')
+        example_text += input_text + ' ' + answer + '\n\n---\n\n'
+
+    true_labels = []
+    pred_labels = []
+    for sample in test_data:
+        input_text = linearize_table(sample)
+        full_input = example_text + input_text
+        prediction = generate_prediction(model, tokenizer, full_input, device)
+        predicted_label = map_prediction_to_label(prediction, labels_to_include)
+        true_labels.append(sample['label'])
+        pred_labels.append(predicted_label)
+    return true_labels, pred_labels
 
 if __name__ == "__main__":
     # 재현성을 위해 랜덤 시드 설정
@@ -30,8 +66,14 @@ if __name__ == "__main__":
     tokenizer, model = load_model(model_name, device)
 
     # 데이터 로드
-    data_file = 'sci_tab.json'  # 데이터 파일 경로 지정
+    data_file = 'scitab_data.json'  # 데이터 파일 경로 지정
     data = load_data(data_file)
+
+    # 데이터 분할 (예시로 사용할 3개 샘플)
+    example_data, test_data = split_data(data, num_examples=3)
+
+    print(f"예시 데이터 개수: {len(example_data)}")
+    print(f"테스트 데이터 개수: {len(test_data)}")
 
     # 레이블 맵핑
     label_mapping = {
@@ -40,68 +82,38 @@ if __name__ == "__main__":
         'not enough information': 'Unknown'
     }
 
-    # 결과를 저장할 파일 열기
-    output_file = 'evaluation_results.txt'
-    with open(output_file, 'w', encoding='utf-8') as f:
-        # 2-class 실험
-        print("=== 2-class 실험 (supports, refutes) ===")
-        f.write("=== 2-class 실험 (supports, refutes) ===\n")
-        data_2class = [sample for sample in data if sample['label'] != 'not enough information']
-        example_data_2class, test_data_2class = split_data(data_2class)
+    # **2분류 실험 (NEI 제외)**
+    labels_2class = ['supports', 'refutes']
+    test_data_2class = filter_data_by_labels(test_data, labels_2class)
+    example_data_2class = filter_data_by_labels(example_data, labels_2class)
 
-        # 클래스 레이블 설정
-        class_labels_2class = ['supports', 'refutes']
+    print(f"\n2분류 실험: Zero-shot 평가를 시작합니다...")
+    true_labels_zs_2, pred_labels_zs_2 = zero_shot_evaluate(model, tokenizer, test_data_2class, labels_2class, device)
+    print("2분류 실험: Zero-shot 평가 완료.\n")
 
-        print(f"예시 데이터 개수 (2-class): {len(example_data_2class)}")
-        print(f"테스트 데이터 개수 (2-class): {len(test_data_2class)}")
-        f.write(f"예시 데이터 개수 (2-class): {len(example_data_2class)}\n")
-        f.write(f"테스트 데이터 개수 (2-class): {len(test_data_2class)}\n")
+    print("2분류 실험: In-Context Learning 평가를 시작합니다...")
+    true_labels_ic_2, pred_labels_ic_2 = in_context_evaluate(model, tokenizer, test_data_2class, example_data_2class, label_mapping, labels_2class, device)
+    print("2분류 실험: In-Context Learning 평가 완료.\n")
 
-        print("Zero-shot 평가를 시작합니다...")
-        true_labels_zs_2class, pred_labels_zs_2class = zero_shot_evaluate(model, tokenizer, test_data_2class, device)
-        print("Zero-shot 평가 완료.\n")
+    print("2분류 실험: Zero-shot 평가 결과:")
+    calculate_metrics(true_labels_zs_2, pred_labels_zs_2, labels_2class)
 
-        print("In-Context Learning 평가를 시작합니다...")
-        true_labels_ic_2class, pred_labels_ic_2class = in_context_evaluate(model, tokenizer, test_data_2class, example_data_2class, label_mapping, device)
-        print("In-Context Learning 평가 완료.\n")
+    print("\n2분류 실험: In-Context Learning 평가 결과:")
+    calculate_metrics(true_labels_ic_2, pred_labels_ic_2, labels_2class)
 
-        print("Zero-shot 평가 결과 (2-class):")
-        f.write("\nZero-shot 평가 결과 (2-class):\n")
-        calculate_metrics(true_labels_zs_2class, pred_labels_zs_2class, class_labels_2class, file=f)
-        f.write("\n")
+    # **3분류 실험 (전체 레이블)**
+    labels_3class = ['supports', 'refutes', 'not enough information']
 
-        print("\nIn-Context Learning 평가 결과 (2-class):")
-        f.write("\nIn-Context Learning 평가 결과 (2-class):\n")
-        calculate_metrics(true_labels_ic_2class, pred_labels_ic_2class, class_labels_2class, file=f)
-        f.write("\n")
+    print(f"\n3분류 실험: Zero-shot 평가를 시작합니다...")
+    true_labels_zs_3, pred_labels_zs_3 = zero_shot_evaluate(model, tokenizer, test_data, labels_3class, device)
+    print("3분류 실험: Zero-shot 평가 완료.\n")
 
-        # 3-class 실험
-        print("\n=== 3-class 실험 (supports, refutes, not enough information) ===")
-        f.write("\n=== 3-class 실험 (supports, refutes, not enough information) ===\n")
-        data_3class = data.copy()
-        example_data_3class, test_data_3class = split_data(data_3class)
+    print("3분류 실험: In-Context Learning 평가를 시작합니다...")
+    true_labels_ic_3, pred_labels_ic_3 = in_context_evaluate(model, tokenizer, test_data, example_data, label_mapping, labels_3class, device)
+    print("3분류 실험: In-Context Learning 평가 완료.\n")
 
-        # 클래스 레이블 설정
-        class_labels_3class = ['supports', 'refutes', 'not enough information']
+    print("3분류 실험: Zero-shot 평가 결과:")
+    calculate_metrics(true_labels_zs_3, pred_labels_zs_3, labels_3class)
 
-        print(f"예시 데이터 개수 (3-class): {len(example_data_3class)}")
-        print(f"테스트 데이터 개수 (3-class): {len(test_data_3class)}")
-        f.write(f"예시 데이터 개수 (3-class): {len(example_data_3class)}\n")
-        f.write(f"테스트 데이터 개수 (3-class): {len(test_data_3class)}\n")
-
-        print("Zero-shot 평가를 시작합니다...")
-        true_labels_zs_3class, pred_labels_zs_3class = zero_shot_evaluate(model, tokenizer, test_data_3class, device)
-        print("Zero-shot 평가 완료.\n")
-
-        print("In-Context Learning 평가를 시작합니다...")
-        true_labels_ic_3class, pred_labels_ic_3class = in_context_evaluate(model, tokenizer, test_data_3class, example_data_3class, label_mapping, device)
-        print("In-Context Learning 평가 완료.\n")
-
-        print("Zero-shot 평가 결과 (3-class):")
-        f.write("\nZero-shot 평가 결과 (3-class):\n")
-        calculate_metrics(true_labels_zs_3class, pred_labels_zs_3class, class_labels_3class, file=f)
-        f.write("\n")
-
-        print("\nIn-Context Learning 평가 결과 (3-class):")
-        f.write("\nIn-Context Learning 평가 결과 (3-class):\n")
-        calculate_metrics(true_labels_ic_3class, pred_labels_ic_3class, class_labels_3class, file=f)
+    print("\n3분류 실험: In-Context Learning 평가 결과:")
+    calculate_metrics(true_labels_ic_3, pred_labels_ic_3, labels_3class)
