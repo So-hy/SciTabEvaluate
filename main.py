@@ -61,7 +61,7 @@ if __name__ == "__main__":
     tokenizer, model = load_model(model_name, device)
 
     # 데이터 로드
-    data_file = 'scitab_data.json'  # 데이터 파일 경로 지정
+    data_file = 'sci_tab.json'  # 데이터 파일 경로 지정
     data = load_data(data_file)
 
     # 데이터 분할
