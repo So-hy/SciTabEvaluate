@@ -56,11 +56,12 @@ def in_context_evaluate(model, tokenizer, test_data, example_data, label_mapping
 if __name__ == "__main__":
     # 재현성을 위해 랜덤 시드 설정
     torch.manual_seed(42)
-
+    
     # GPU 사용 가능 여부 확인
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
+    
     # 모델 및 토크나이저 로드
     model_name = 'google/flan-t5-large'
     tokenizer, model = load_model(model_name, device)
@@ -82,6 +83,13 @@ if __name__ == "__main__":
         'not enough information': 'Unknown'
     }
 
+    # 결과를 저장할 파일 경로 지정
+    output_file = 'evaluation_results.txt'
+
+    # 기존 파일을 초기화하기 위해 열고 닫음
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write('SCITAB 평가 결과\n\n')
+        
     # **2분류 실험 (NEI 제외)**
     labels_2class = ['supports', 'refutes']
     test_data_2class = filter_data_by_labels(test_data, labels_2class)
@@ -96,10 +104,11 @@ if __name__ == "__main__":
     print("2분류 실험: In-Context Learning 평가 완료.\n")
 
     print("2분류 실험: Zero-shot 평가 결과:")
-    calculate_metrics(true_labels_zs_2, pred_labels_zs_2, labels_2class)
+    calculate_metrics(true_labels_zs_2, pred_labels_zs_2, labels_2class, output_file=output_file, experiment_name='2분류 Zero-shot 평가 결과')
 
     print("\n2분류 실험: In-Context Learning 평가 결과:")
-    calculate_metrics(true_labels_ic_2, pred_labels_ic_2, labels_2class)
+    calculate_metrics(true_labels_ic_2, pred_labels_ic_2, labels_2class, output_file=output_file, experiment_name='2분류 In-Context Learning 평가 결과')
+
 
     # **3분류 실험 (전체 레이블)**
     labels_3class = ['supports', 'refutes', 'not enough information']
@@ -113,7 +122,7 @@ if __name__ == "__main__":
     print("3분류 실험: In-Context Learning 평가 완료.\n")
 
     print("3분류 실험: Zero-shot 평가 결과:")
-    calculate_metrics(true_labels_zs_3, pred_labels_zs_3, labels_3class)
+    calculate_metrics(true_labels_zs_3, pred_labels_zs_3, labels_3class, output_file=output_file, experiment_name='3분류 Zero-shot 평가 결과')
 
     print("\n3분류 실험: In-Context Learning 평가 결과:")
-    calculate_metrics(true_labels_ic_3, pred_labels_ic_3, labels_3class)
+    calculate_metrics(true_labels_ic_3, pred_labels_ic_3, labels_3class, output_file=output_file, experiment_name='3분류 In-Context Learning 평가 결과')
