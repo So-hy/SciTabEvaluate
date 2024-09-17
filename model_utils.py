@@ -9,7 +9,7 @@ def load_model(model_name, device):
     model = T5ForConditionalGeneration.from_pretrained(model_name).to(device)
     return tokenizer, model
 
-def generate_prediction(model, tokenizer, input_text, device, max_length=10):
+def generate_prediction(model, tokenizer, input_text, device, max_length=50):
     """Predict..."""
     inputs = tokenizer.encode(input_text, return_tensors='pt', max_length=1024, truncation=True).to(device)
     outputs = model.generate(inputs, max_length=max_length)
