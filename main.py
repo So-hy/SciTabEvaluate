@@ -6,12 +6,12 @@ from model_utils import load_model, generate_prediction
 from evaluation import calculate_metrics
 
 def map_prediction_to_label(prediction, labels_to_include):
-    """모델의 출력 문자열을 레이블로 매핑합니다."""
-    if 'True' in prediction or 'A' in prediction:
+    prediction = prediction.lower().strip()
+    if 'true' in prediction or prediction == 'a':
         label = 'supports'
-    elif 'False' in prediction or 'B' in prediction:
+    elif 'false' in prediction or prediction == 'b':
         label = 'refutes'
-    elif 'unknown' in prediction or 'c' in prediction or 'not enough information' in prediction or 'cannot determine' in prediction:
+    elif 'unknown' in prediction or prediction == 'c':
         label = 'not enough information'
     else:
         label = 'unknown'
