@@ -4,13 +4,13 @@ import json
 from random import shuffle
 
 def load_data(data_file):
-    """SCITAB Load."""
+    """SCITAB 데이터셋을 로드합니다."""
     with open(data_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     return data
 
-def split_data(data, num_examples=5, num_claims_per_table=5):
-    """Split Data."""
+def split_data(data, num_examples=3, num_claims_per_table=5):
+    """데이터를 예시 데이터와 테스트 데이터로 분할합니다."""
     shuffle(data)
 
     example_tables = {}
@@ -31,8 +31,13 @@ def split_data(data, num_examples=5, num_claims_per_table=5):
             test_data.append(sample)
     return example_data, test_data
 
+def filter_data_by_labels(data, labels_to_include):
+    """주어진 레이블만 포함하도록 데이터를 필터링합니다."""
+    filtered_data = [sample for sample in data if sample['label'] in labels_to_include]
+    return filtered_data
+
 def linearize_table(sample):
-    """Linearize Table..."""
+    """표를 선형화하고 입력 텍스트를 구성합니다."""
     # 표 캡션
     caption = sample['table_caption']
 
