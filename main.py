@@ -11,9 +11,9 @@ def map_prediction_to_label(prediction, labels_to_include):
     prediction = prediction.lower().strip()
 
     # 모델 출력에 따라 레이블 매핑
-    if 'supports' in prediction or prediction == 'a':
+    if 'supports' in prediction or prediction == 'a' or prediction == 'yes':
         label = 'supports'
-    elif 'refutes' in prediction or prediction == 'b':
+    elif 'refutes' in prediction or prediction == 'b' or prediction == 'no':  # "No"를 refutes로 처리
         label = 'refutes'
     elif 'not enough information' in prediction or 'unknown' in prediction or 'cannot determine' in prediction or prediction == 'c':
         label = 'not enough information'
