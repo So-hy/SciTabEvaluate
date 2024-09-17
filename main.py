@@ -15,7 +15,7 @@ def map_prediction_to_label(prediction, labels_to_include):
         label = 'supports'
     elif 'refutes' in prediction or prediction == 'b' or prediction == 'no':  # "No"를 refutes로 처리
         label = 'refutes'
-    elif 'not enough information' in prediction or 'unknown' in prediction or 'cannot determine' in prediction or prediction == 'c':
+    elif 'not enough information' in prediction or 'unknown' in prediction or 'cannot determine' in prediction or prediction == 'c' or 'not enough info' in prediction:
         label = 'not enough information'
     else:
         label = 'not enough information'  # supports/refutes가 아니면 NEI로 처리
