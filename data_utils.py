@@ -64,9 +64,9 @@ Claim:
 {claim}
 
 Based on the information in the table, is the above claim true?
-A) True
-B) False
-C) Unknown?
+A) Supports
+B) Refutes
+C) Not enough information
 Answer:"""
 
     return input_text
