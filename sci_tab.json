@@ -95,6 +95,80 @@
     "table_id": "042a154a-add4-4bcb-be23-541a760b2e1c"
   },
   {
+    "paper": "Using Structured Representation and Data: A Hybrid Model for Negation and Sentiment in Customer Service Conversations",
+    "paper_id": "1906.04706v1",
+    "table_caption": "Table 3: Cue and token distribution in the conversational negation corpus.",
+    "table_column_names": [
+      "Total negation cues",
+      "2921"
+    ],
+    "table_content_values": [
+      [
+        "True negation cues",
+        "2674"
+      ],
+      [
+        "False negation cues",
+        "247"
+      ],
+      [
+        "Average scope length",
+        "2.9"
+      ],
+      [
+        "Average sentence length",
+        "13.6"
+      ],
+      [
+        "Average tweet length",
+        "22.3"
+      ]
+    ],
+    "id": "47261858-023d-413f-aad0-4d850bd3ffb3",
+    "claim": "The average number of tokens per tweet is not 22.3, per sentence is not 13.6 and average scope length is not 2.9.",
+    "label": "refutes",
+    "table_id": "eb1db734-3cd4-4bbe-bb91-18652492df66"
+  },
+  {
+    "paper": "Attention-Based Capsule Networks with Dynamic Routing for Relation Extraction",
+    "paper_id": "1812.11321v1",
+    "table_caption": "Table 3: Ablation study of capsule net and word-level attention on Wikidata dataset.",
+    "table_column_names": [
+      "Recall",
+      "0.1",
+      "0.2",
+      "0.3",
+      "AUC"
+    ],
+    "table_content_values": [
+      [
+        "-Word-ATT",
+        "0.648",
+        "0.515",
+        "0.395",
+        "0.389"
+      ],
+      [
+        "-Capsule",
+        "0.635",
+        "0.507",
+        "0.413",
+        "0.386"
+      ],
+      [
+        "Our Model",
+        "0.650",
+        "0.519",
+        "0.422",
+        "0.405"
+      ]
+    ],
+    "id": "3addae78-e7aa-4757-a6e9-dc12dac74787",
+    "claim": "The results prove the effectiveness of word-level attention to exploit the local interactions in link prediction task.",
+    "label": "not enough info",
+    "table_id": "33a87cb6-8a23-46f2-8fee-97555075aab1"
+  },
+  {
     "paper": "Towards Quantifying the Distance between Opinions",
     "paper_id": "2001.09879v1",
     "table_caption": "Table 5: We compare the quality of variants of Opinion Distance measures on opinion clustering task with ARI.",
@@ -407,80 +481,6 @@
     "claim": "In particular, we see that hate speech and harassment are particularly difficult to detect.",
     "label": "supports",
     "table_id": "c989cbdc-ad17-41ce-836a-77ad71aefbc8"
-  },
-  {
-    "paper": "Attention-Based Capsule Networks with Dynamic Routing for Relation Extraction",
-    "paper_id": "1812.11321v1",
-    "table_caption": "Table 3: Ablation study of capsule net and word-level attention on Wikidata dataset.",
-    "table_column_names": [
-      "Recall",
-      "0.1",
-      "0.2",
-      "0.3",
-      "AUC"
-    ],
-    "table_content_values": [
-      [
-        "-Word-ATT",
-        "0.648",
-        "0.515",
-        "0.395",
-        "0.389"
-      ],
-      [
-        "-Capsule",
-        "0.635",
-        "0.507",
-        "0.413",
-        "0.386"
-      ],
-      [
-        "Our Model",
-        "0.650",
-        "0.519",
-        "0.422",
-        "0.405"
-      ]
-    ],
-    "id": "3addae78-e7aa-4757-a6e9-dc12dac74787",
-    "claim": "The results prove the effectiveness of word-level attention to exploit the local interactions in link prediction task.",
-    "label": "not enough info",
-    "table_id": "33a87cb6-8a23-46f2-8fee-97555075aab1"
-  },
-  {
-    "paper": "Using Structured Representation and Data: A Hybrid Model for Negation and Sentiment in Customer Service Conversations",
-    "paper_id": "1906.04706v1",
-    "table_caption": "Table 3: Cue and token distribution in the conversational negation corpus.",
-    "table_column_names": [
-      "Total negation cues",
-      "2921"
-    ],
-    "table_content_values": [
-      [
-        "True negation cues",
-        "2674"
-      ],
-      [
-        "False negation cues",
-        "247"
-      ],
-      [
-        "Average scope length",
-        "2.9"
-      ],
-      [
-        "Average sentence length",
-        "13.6"
-      ],
-      [
-        "Average tweet length",
-        "22.3"
-      ]
-    ],
-    "id": "47261858-023d-413f-aad0-4d850bd3ffb3",
-    "claim": "The average number of tokens per tweet is not 22.3, per sentence is not 13.6 and average scope length is not 2.9.",
-    "label": "refutes",
-    "table_id": "eb1db734-3cd4-4bbe-bb91-18652492df66"
   },
   {
     "paper": "Unsupervised Evaluation Metrics and Learning Criteriafor Non-Parallel Textual Transfer",
