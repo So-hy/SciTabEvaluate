@@ -11,15 +11,15 @@ def map_prediction_to_label(prediction, labels_to_include):
         label = 'supports'
     elif 'False' in prediction or 'B' in prediction:
         label = 'refutes'
-    elif 'Unknown' in prediction or 'C' in prediction:
+    elif 'unknown' in prediction or 'c' in prediction or 'not enough information' in prediction or 'cannot determine' in prediction:
         label = 'not enough information'
     else:
         label = 'unknown'
 
-    # 사용하지 않는 레이블은 'unknown'으로 처리
     if label not in labels_to_include:
         label = 'unknown'
     return label
+
 
 def zero_shot_evaluate(model, tokenizer, test_data, labels_to_include, device):
     """Zero-shot 평가를 수행합니다."""
