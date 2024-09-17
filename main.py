@@ -4,6 +4,7 @@ import torch
 from data_utils import load_data, split_data, filter_data_by_labels, linearize_table
 from model_utils import load_model, generate_prediction
 from evaluation import calculate_metrics
+from tqdm import tqdm
 
 def map_prediction_to_label(prediction, labels_to_include):
     # 모델의 출력을 소문자로 변환하고 앞뒤 공백을 제거
@@ -30,7 +31,7 @@ def zero_shot_evaluate(model, tokenizer, test_data, labels_to_include, device):
     """Zero-shot 평가를 수행합니다."""
     true_labels = []
     pred_labels = []
-    for sample in test_data:
+    for sample in tqdm(test_data, desc="Evaluating", unit="sample"):
         input_text = linearize_table(sample)
         prediction = generate_prediction(model, tokenizer, input_text, device)
         predicted_label = map_prediction_to_label(prediction, labels_to_include)
@@ -49,7 +50,7 @@ def in_context_evaluate(model, tokenizer, test_data, example_data, label_mapping
 
     true_labels = []
     pred_labels = []
-    for sample in test_data:
+    for sample in tqdm(test_data, desc="Evaluating", unit="sample"):
         input_text = linearize_table(sample)
         full_input = example_text + input_text
         prediction = generate_prediction(model, tokenizer, full_input, device)
