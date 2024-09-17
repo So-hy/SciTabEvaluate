@@ -6,18 +6,23 @@ from model_utils import load_model, generate_prediction
 from evaluation import calculate_metrics
 
 def map_prediction_to_label(prediction, labels_to_include):
+    # 모델의 출력을 소문자로 변환하고 앞뒤 공백을 제거
     prediction = prediction.lower().strip()
-    if 'true' in prediction or prediction == 'a':
+
+    # 모델 출력에 따라 레이블 매핑
+    if 'supports' in prediction or prediction == 'a':
         label = 'supports'
-    elif 'false' in prediction or prediction == 'b':
+    elif 'refutes' in prediction or prediction == 'b':
         label = 'refutes'
-    elif 'unknown' in prediction or prediction == 'c':
+    elif 'not enough information' in prediction or 'unknown' in prediction or 'cannot determine' in prediction or prediction == 'c':
         label = 'not enough information'
     else:
-        label = 'unknown'
+        label = 'not enough information'  # supports/refutes가 아니면 NEI로 처리
 
+    # 해당 레이블이 포함되지 않으면 기본적으로 'not enough information' 처리
     if label not in labels_to_include:
-        label = 'unknown'
+        label = 'not enough information'
+    
     return label
 
 
@@ -78,9 +83,9 @@ if __name__ == "__main__":
 
     # 레이블 맵핑
     label_mapping = {
-        'supports': 'True',
-        'refutes': 'False',
-        'not enough information': 'Unknown'
+        'supports': 'Supports',
+        'refutes': 'Refutes',
+        'not enough information': 'Not enough information'
     }
 
     # 결과를 저장할 파일 경로 지정
