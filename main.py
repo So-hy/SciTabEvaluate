@@ -76,12 +76,16 @@ if __name__ == "__main__":
     data_file = 'sci_tab.json'  # 데이터 파일 경로 지정
     data = load_data(data_file)
 
+    
     # 데이터 분할 (예시로 사용할 3개 샘플)
     example_data, test_data = split_data(data, num_examples=3)
 
     print(f"예시 데이터 개수: {len(example_data)}")
     print(f"테스트 데이터 개수: {len(test_data)}")
-
+    
+    nei_count = sum(1 for sample in test_data if sample['label'] == 'not enough information')
+    print(f"테스트 데이터에서 'not enough information' 레이블의 샘플 수: {nei_count}")
+    
     # 레이블 맵핑
     label_mapping = {
         'supports': 'Supports',
